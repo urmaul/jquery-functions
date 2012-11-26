@@ -2,8 +2,15 @@ $.fn.formValues = function(values) {
     if ( values == undefined ) {
         // Return values
         values = {};
+        
+        var selector = [
+			'input:not(:checkbox):not(:radio)',
+			'input:checked',
+			'select',
+			'textarea'
+        ] .join(', ');
 
-        $('input:not(:checkbox), input:checkbox:checked, select, textarea', this) .each(function(){
+        $(selector, this) .each(function(){
             var name = $(this) .attr('name');
 
             if (name)
@@ -15,16 +22,23 @@ $.fn.formValues = function(values) {
     } else {
         // Set values
         
+        var selector = [
+			'input:not(:checkbox):not(:radio)',
+			'select',
+			'textarea'
+		] .join(', ');
+				
         for (name in values) {
-            var nameS = '[name="' + name + '"]';
-            var $checkbox = $('input' + nameS + ':checkbox', this);
             var value = values[name];
+            var $inputs =  $('[name="' + name + '"]', this);
+            var $checkable = $inputs .filter(':checkbox, :radio');
             
-            if ( $checkbox .length ) {
-                $checkbox .checked( value == $checkbox .val() );
+            if ( $checkable .length ) {
+                $checkable .checked(false)
+					.filter('[value="' + value + '"]') .checked(true);
                 
             } else {
-                $('input' + nameS + ':not(:checkbox), select' + nameS + ', textarea' + nameS, this) .val( value );
+				$inputs .filter(selector, this) .val( value );
             }
         }
         
